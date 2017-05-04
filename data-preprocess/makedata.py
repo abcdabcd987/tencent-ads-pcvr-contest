@@ -118,19 +118,27 @@ def setup_cursor(dbpath):
     cursor = conn.cursor()
 
 
+def get_num_lines(filename):
+    with open(filename) as f:
+        return sum(1 for line in f)
+
+
 def main(args):
     global train, feature_map, cursor
 
+    if not os.path.exists(args.output_dir):
+        os.makedirs(args.output_dir)
     setup_cursor(args.db)
-    pool = multiprocessing.Pool(initializer=setup_cursor, initargs=(args.db, ))
+    pool = multiprocessing.Pool(processes=args.num_workers, initializer=setup_cursor, initargs=(args.db, ))
 
     print 'reading train to build features...'
     num_ones = 0
     train = []
-    with open(os.path.join(args.input_dir, 'train.csv')) as f:
+    filename = os.path.join(args.input_dir, 'train.csv')
+    with open(filename) as f:
         reader = csv.DictReader(f)
         iter = pool.imap_unordered(make_impression, reader)
-        for imp_args in tqdm(iter):
+        for imp_args in tqdm(iter, total=get_num_lines(filename)):
             imp = Impression(*imp_args)
             train.append(imp)
             if len(imp.features) > num_ones:
@@ -152,7 +160,7 @@ def main(args):
     with open(os.path.join(args.input_dir, 'test.csv')) as fin, \
          gzip.open(os.path.join(args.output_dir, 'test.txt.gz'), 'w') as fout:
         reader = csv.DictReader(fin)
-        for row in tqdm(reader):
+        for row in tqdm(reader, total=get_num_lines(os.path.join(args.input_dir, 'test.csv'))):
             features, label, clickTime = make_impression(row)
             label = row['instanceID'] # little hack to use write_line()
             imp = Impression(features, label, clickTime)
@@ -174,5 +182,6 @@ if __name__ == '__main__':
     parser.add_argument('--input_dir', type=str, required=True)
     parser.add_argument('--output_dir', type=str, required=True)
     parser.add_argument('--db', type=str, required=True)
+    parser.add_argument('--num_workers', type=int, default=multiprocessing.cpu_count() * 2)
     args = parser.parse_args()
     main(args)
