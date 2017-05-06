@@ -7,6 +7,7 @@ import sqlite3
 import os
 import multiprocessing
 from collections import namedtuple, defaultdict
+import numpy as np
 from tqdm import tqdm
 
 def get_ddhhmm(s):
@@ -147,6 +148,9 @@ def main(args):
     print 'building feature map...'
     make_feature_map()
 
+    print 'shuffling training data...'
+    np.random.shuffle(train)
+
     print 'making train and val data...'
     with gzip.open(os.path.join(args.output_dir, 'train.txt.gz'), 'w') as f_train, \
          gzip.open(os.path.join(args.output_dir, 'val.txt.gz'), 'w') as f_val:
@@ -175,7 +179,7 @@ def main(args):
         for feature, index in feature_map.iteritems():
             f.write('{:d} {:s}\n'.format(index, feature))
     
-    print 'done'
+    print 'all done. waiting python GC...'
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
