@@ -20,7 +20,6 @@ export data_root=out/pre-20170504-naive
 python model/model_20170504_clq_naive_lr.py \
     --data_root $data_root/ \
     --output_root out/ \
-    --num_feature $(cat $data_root/num_features.txt) \
-    --num_one $(cat $data_root/num_ones.txt)
+    --num_feature $(cat $data_root/num_features.txt)
 tensorboard --logdir=out/logs --reload_interval 2 --port 6006
 ```
