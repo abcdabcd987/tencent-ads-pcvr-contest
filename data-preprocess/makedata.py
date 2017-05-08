@@ -8,7 +8,6 @@ import os
 import multiprocessing
 from collections import namedtuple, defaultdict
 import numpy as np
-import tensorflow as tf
 from tqdm import tqdm
 
 def get_ddhhmm(s):
@@ -103,28 +102,14 @@ def make_feature_map():
     num_features = next_index
 
 
-def write_line(f, writer, imp):
-    index_list = []
-    value_list = []
+def write_line(f, imp):
     f.write(imp.label + ' ')
     for feature in imp.features:
         idx = feature_map.get(feature, None)
         if idx is None:
             idx = feature_map[FeaturePair(feature.field, '__other__')]
         f.write(str(idx) + ':1 ')
-        index_list.append(idx)
-        value_list.append(1.0)
     f.write('\n')
-
-    index = tf.train.Feature(int64_list=tf.train.Int64List(value=index_list))
-    value = tf.train.Feature(float_list=tf.train.FloatList(value=value_list))
-    label = tf.train.Feature(int64_list=tf.train.Int64List(value=[int(imp.label)]))
-    example = tf.train.Example(features=tf.train.Features(feature={
-        'index': index,
-        'value': value,
-        'label': label,
-    }))
-    writer.write(example.SerializeToString())
 
 
 def setup_cursor(dbpath):
@@ -167,27 +152,23 @@ def main(args):
     np.random.shuffle(train)
 
     print 'making train and val data...'
-    tfrecord_options = tf.python_io.TFRecordOptions(tf.python_io.TFRecordCompressionType.GZIP)
     with gzip.open(os.path.join(args.output_dir, 'train.txt.gz'), 'w') as f_train, \
-         gzip.open(os.path.join(args.output_dir, 'val.txt.gz'), 'w') as f_val, \
-         tf.python_io.TFRecordWriter(os.path.join(args.output_dir, 'train.tfrecord.gz'), tfrecord_options) as writer_train, \
-         tf.python_io.TFRecordWriter(os.path.join(args.output_dir, 'val.tfrecord.gz'), tfrecord_options) as writer_val:
+         gzip.open(os.path.join(args.output_dir, 'val.txt.gz'), 'w') as f_val:
         for imp in tqdm(train):
             if imp.clickTime[:2] == '30': # Day 30 as validation set
-                write_line(f_val, writer_val, imp)
+                write_line(f_val, imp)
             else:
-                write_line(f_train, writer_train, imp)
+                write_line(f_train, imp)
     
     print 'making test data...'
     with open(os.path.join(args.input_dir, 'test.csv')) as fin, \
-         gzip.open(os.path.join(args.output_dir, 'test.txt.gz'), 'w') as fout, \
-         tf.python_io.TFRecordWriter(os.path.join(args.output_dir, 'test.tfrecord.gz'), tfrecord_options) as writer_test:
+         gzip.open(os.path.join(args.output_dir, 'test.txt.gz'), 'w') as fout:
         reader = csv.DictReader(fin)
         for row in tqdm(reader, total=get_num_lines(os.path.join(args.input_dir, 'test.csv'))):
             features, label, clickTime = make_impression(row)
             label = row['instanceID'] # little hack to use write_line()
             imp = Impression(features, label, clickTime)
-            write_line(fout, writer_test, imp)
+            write_line(fout, imp)
     
     print 'writing metadata...'
     with open(os.path.join(args.output_dir, 'num_ones.txt'), 'w') as f:
