@@ -153,12 +153,14 @@ def main(args):
 
     print 'making train and val data...'
     with gzip.open(os.path.join(args.output_dir, 'train.txt.gz'), 'w') as f_train, \
-         gzip.open(os.path.join(args.output_dir, 'val.txt.gz'), 'w') as f_val:
+         gzip.open(os.path.join(args.output_dir, 'val.txt.gz'), 'w') as f_val, \
+         gzip.open(os.path.join(args.output_dir, 'combine.txt.gz'), 'w') as f_combine:
         for imp in tqdm(train):
             if imp.clickTime[:2] == '30': # Day 30 as validation set
                 write_line(f_val, imp)
             else:
                 write_line(f_train, imp)
+            write_line(f_combine, imp)
     
     print 'making test data...'
     with open(os.path.join(args.input_dir, 'test.csv')) as fin, \
@@ -169,6 +171,8 @@ def main(args):
             label = row['instanceID'] # little hack to use write_line()
             imp = Impression(features, label, clickTime)
             write_line(fout, imp)
+            if len(imp.features) > num_ones:
+                num_ones = len(imp.features)
     
     print 'writing metadata...'
     with open(os.path.join(args.output_dir, 'num_ones.txt'), 'w') as f:

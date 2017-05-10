@@ -4,6 +4,8 @@ import sys
 import glob
 import gzip
 import argparse
+import zipfile
+import traceback
 import multiprocessing
 from datetime import datetime
 from collections import deque
@@ -101,11 +103,11 @@ class LinearRegressionCTR(object):
                             initializer=tf.zeros_initializer())
         wx = tf.reduce_sum(tf.gather(w, self._ph_x), axis=1)
         logits = wx + b
-        prob = tf.sigmoid(logits)
+        self._prob = tf.sigmoid(logits)
         loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=self._ph_y, logits=logits))
         opt = tf.train.AdamOptimizer(self._learning_rate)
         self._train_step = opt.minimize(loss)
-        self._auc, self._auc_op = tf.metrics.auc(self._ph_y, prob)
+        self._auc, self._auc_op = tf.metrics.auc(self._ph_y, self._prob)
         tf.summary.scalar('train_loss', loss)
         tf.summary.scalar('train_auc', self._auc)
         self._summary_step = tf.summary.merge_all()
@@ -122,9 +124,18 @@ class LinearRegressionCTR(object):
 
         self._sess.run(tf.global_variables_initializer())
         self._step = 0
+    
+    def load(self, model_path):
+        checkpoint = tf.train.get_checkpoint_state(model_path)
+        if checkpoint and checkpoint.model_checkpoint_path:
+            self._saver.restore(self._sess, checkpoint.model_checkpoint_path)
+            print "model loaded:", checkpoint.model_checkpoint_path
+        else:
+            raise Exception("no model found in " + model_path)
 
     def save(self):
-        self._saver.save(self._sess, self._model_dir, global_step=self._step)
+        filename = os.path.join(self._model_dir, 'model')
+        self._saver.save(self._sess, filename, global_step=self._step)
 
     def train(self):
         filename = os.path.join(self._data_root, 'train.txt.gz')
@@ -171,7 +182,38 @@ class LinearRegressionCTR(object):
             raise
         reader.stop()
         reader.join()
+    
+    def test(self):
+        res = []
+        filename = os.path.join(self._data_root, 'test.txt.gz')
+        reader = BufferedDataReader(filename, self._batch_size, self._num_one)
+        try:
+            while True:
+                xs, ys = reader.get_batch()
+                if len(ys) == 0:
+                    break
+                probs = self._sess.run(self._prob, feed_dict={self._ph_x: xs})
+                for i, prob in zip(ys, probs):
+                    res.append((i, prob))
+        except:
+            reader.stop()
+            reader.join()
+            raise
+        reader.stop()
+        reader.join()
+        res.sort(key=lambda (i, prob): i)
 
+        test_dir = os.path.join(self._output_root, 'tests')
+        if not os.path.exists(test_dir):
+            os.makedirs(test_dir)
+        filename = os.path.join(test_dir, datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_' + MODEL_NAME)
+        with open(filename + '.csv', 'w') as f:
+            f.write('instanceID,prob\n')
+            for i, prob in res:
+                f.write('{:d},{:.16f}\n'.format(i, prob))
+        with zipfile.ZipFile(filename + '.zip', 'w', zipfile.ZIP_DEFLATED) as z:
+            z.write(filename + '.csv', 'submission.csv')
+        print 'test result wrote to', filename + '.csv'
 
 def main():
     parser = argparse.ArgumentParser()
@@ -179,6 +221,8 @@ def main():
     parser.add_argument('--output_root', type=str, required=True)
     parser.add_argument('--num_feature', type=int, required=True)
     parser.add_argument('--num_one', type=int, required=True)
+    parser.add_argument('--train', action='store_true')
+    parser.add_argument('--model', type=str, help='load model from the given path')
     args, _ = parser.parse_known_args()
 
     data_root = args.data_root
@@ -189,10 +233,15 @@ def main():
                                 num_one=args.num_one,
                                 learning_rate=5e-4,
                                 batch_size=512)
-    for _ in xrange(10):
-        model.train()
-        model.save()
-        model.validate()
+    if args.model:
+        model.load(args.model)
+    if args.train:
+        print 'training...'
+        for _ in xrange(10):
+            model.train()
+            model.save()
+            model.validate()
+    model.test()
 
 if __name__ == '__main__':
     main()
