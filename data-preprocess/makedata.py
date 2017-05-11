@@ -79,7 +79,7 @@ def make_impression(row):
 
 
 def make_feature_map():
-    global train, feature_map, num_features
+    global train, feature_list, feature_map, num_features
     count = {}
     fields = set()
     for imp in tqdm(train, total=len(train)):
@@ -87,19 +87,17 @@ def make_feature_map():
             count[feature] = count.get(feature, 0) + 1
             fields.add(feature.field)
     
-    next_index = 0
-    feature_map = {}
-    feature_map[FeaturePair('__other__', '__other__')] = next_index
-    next_index += 1
+    feature_set = set()
+    feature_set.add(FeaturePair('_', '__other__')) # make sure it is mapped to 0
     for field in fields:
-        feature_map[FeaturePair(field, '__other__')] = next_index
-        next_index += 1
-
+        feature_set.add(FeaturePair(field, '__other__'))
     for feature, count in count.iteritems():
         if count >= 10:
-            feature_map[feature] = next_index
-            next_index += 1
-    num_features = next_index
+            feature_set.add(feature)
+
+    feature_list = sorted(feature_set, key=lambda feature_pair: str(feature_pair))
+    feature_map = {f: i for i, f in enumerate(feature_list)}
+    num_features = len(feature_map) + 1
 
 
 def write_line(f, imp):
@@ -125,7 +123,7 @@ def get_num_lines(filename):
 
 
 def main(args):
-    global train, feature_map, cursor
+    global train, feature_map, feature_list, cursor
 
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
@@ -180,10 +178,18 @@ def main(args):
     with open(os.path.join(args.output_dir, 'num_features.txt'), 'w') as f:
         f.write('{:d}\n'.format(num_features))
     with open(os.path.join(args.output_dir, 'feature_map.txt'), 'w') as f:
-        for feature, index in feature_map.iteritems():
-            f.write('{:d} {:s}\n'.format(index, feature))
+        for i, pair in enumerate(feature_list):
+            f.write('{:d} {:s}\n'.format(i, pair))
+    with open(os.path.join(args.output_dir, 'field_range.txt'), 'w') as f:
+        feature_list.append(FeaturePair('__end__', '__end__'))
+        first, field = 0, feature_list[0].field
+        for i, pair in enumerate(feature_list):
+            if pair.field != field:
+                f.write('{:d} {:d} {:d} {:s}\n'.format(first, i-1, i-first, field))
+                first, field = i, feature_list[i].field
     
-    print 'all done. waiting python GC...'
+    print 'all done. directly exit(0) to prevent python GC...'
+    exit(0)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
