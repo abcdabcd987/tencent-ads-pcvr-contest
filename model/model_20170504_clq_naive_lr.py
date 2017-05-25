@@ -95,15 +95,15 @@ class LinearRegressionCTR(object):
         self._build()
 
     def _build(self):
-        self._ph_x = tf.placeholder(tf.int32, [None, self._num_one])
-        self._ph_y = tf.placeholder(tf.float32, [None])
+        self._ph_x = tf.placeholder(tf.int32, [None, self._num_one], name='ph_x')
+        self._ph_y = tf.placeholder(tf.float32, [None], name='ph_y')
         w = tf.get_variable('weight', [self._num_feature], dtype=tf.float32,
                             initializer=tf.random_uniform_initializer(-0.05, 0.05))
         b = tf.get_variable('bias', [1], dtype=tf.float32,
                             initializer=tf.zeros_initializer())
         wx = tf.reduce_sum(tf.gather(w, self._ph_x), axis=1)
-        logits = wx + b
-        self._prob = tf.sigmoid(logits)
+        logits = tf.add(wx, b, name='logits')
+        self._prob = tf.sigmoid(logits, name='prob')
         loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=self._ph_y, logits=logits))
         opt = tf.train.AdamOptimizer(self._learning_rate)
         self._train_step = opt.minimize(loss)
@@ -124,7 +124,7 @@ class LinearRegressionCTR(object):
 
         self._sess.run(tf.global_variables_initializer())
         self._step = 0
-    
+
     def load(self, model_path):
         checkpoint = tf.train.get_checkpoint_state(model_path)
         if checkpoint and checkpoint.model_checkpoint_path:
@@ -182,7 +182,7 @@ class LinearRegressionCTR(object):
             raise
         reader.stop()
         reader.join()
-    
+
     def test(self):
         res = []
         filename = os.path.join(self._data_root, 'test.txt.gz')
@@ -236,8 +236,7 @@ def main():
     if args.model:
         model.load(args.model)
     if args.train:
-        print 'training...'
-        for _ in xrange(10):
+        for _ in xrange(3):
             model.train()
             model.save()
             model.validate()
