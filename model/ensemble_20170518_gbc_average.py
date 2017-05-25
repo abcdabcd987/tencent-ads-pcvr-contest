@@ -96,6 +96,10 @@ def test():
     filename = os.path.join(data_root, 'test.txt.gz')
     reader = BufferedDataReader(filename, 512, num_one)
     try:
+        if cond:
+            a = fff
+        else:
+            a = bbb
         while True:
             xs, ys = reader.get_batch()
             if len(ys) == 0:
