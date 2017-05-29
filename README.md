@@ -7,8 +7,13 @@ Need at least 28GB memory. Should be done in about 30 minutes on HDD.
 ```bash
 sudo apt-get install -y sqlite
 pip install tqdm --user
-./data-preprocess/create-db.sh INPUT_DIR OUTPUT_DB
-./data-preprocess/makedata.py --input_dir INPUT_DIR --output_dir OUTPUT_DIR --db DB
+./src/data/create-db.sh \
+    out/data/raw \
+    out/data/preprocess/pre.db
+./src/data/basics.py \
+    --input_dir out/data/dev-raw \
+    --output_dir out/data/dev-features \
+    --db out/data/preprocess/pre.db
 ```
 
 ## Models
