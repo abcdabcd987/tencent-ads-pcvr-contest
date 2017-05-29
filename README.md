@@ -2,18 +2,28 @@
 
 ## Data Preprocess
 
-Need at least 28GB memory. Should be done in about 30 minutes on HDD.
-
 ```bash
 sudo apt-get install -y sqlite
 pip install tqdm --user
+
 ./src/data/create-db.sh \
     out/data/raw \
     out/data/preprocess/pre.db
-./src/data/basics.py \
-    --input_dir out/data/dev-raw \
-    --output_dir out/data/dev-features \
+
+# 6.5GB Memory, 20 minutes on SSD
+./src/data/make-feature-raw.py \
+    --input_dir out/data/raw \
+    --output_dir out/data/features \
     --db out/data/preprocess/pre.db
+
+# 2GB Memory
+./src/data/make-feature-basic.py --feature_dir out/data/features
+
+# 40GB Memory, 10 minutes
+./src/data/make-feature-installedApps.py --feature_dir out/data/features
+
+# other features
+./src/data/make-feature.py ACTION --feature_dir out/data/features
 ```
 
 ## Models
