@@ -3,6 +3,7 @@
 import argparse
 import os
 import math
+from array import array
 from collections import namedtuple
 from tqdm import tqdm
 
@@ -15,11 +16,13 @@ def make_onehot_feature(name, other_threshold=4):
     values = load_feature(os.path.join(args.feature_dir, 'raw', name + '.pkl'))
     count = count_values(values)
     index = index_values(count, values, other_threshold)
-    res = [(idx, 1) for idx in remap_feature(index, values)]
+    res_index = remap_feature(index, values)
+    res_value = array_repeat('b', 1, len(res_index))
 
     dump_meta(os.path.join(args.feature_dir, 'basic', name + '.meta.json'),
               {'type': 'one_hot', 'dimension': len(index), 'index': index, 'count': count})
-    dump_feature(os.path.join(args.feature_dir, 'basic', name + '.pkl'), res)
+    dump_feature(os.path.join(args.feature_dir, 'basic', name + '.pkl'), 
+                 res_index, res_value)
     print 'done one-hot feature:', name
 
 

@@ -6,6 +6,7 @@
 sudo apt-get install -y sqlite
 pip install tqdm --user
 
+# convert csv to database for quick random access
 ./src/data/create-db.sh \
     out/data/raw \
     out/data/preprocess/pre.db

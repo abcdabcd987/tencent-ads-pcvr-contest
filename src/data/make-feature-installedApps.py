@@ -4,6 +4,7 @@ import argparse
 import os
 import glob
 import math
+from array import array
 from collections import namedtuple
 from tqdm import tqdm
 
@@ -14,25 +15,25 @@ def make_installedApps(other_threshold=4):
     global args
     installedApps_list = load_feature(os.path.join(args.feature_dir, 'raw', 'installedApps.pkl'))
 
-    all_apps = [app for apps in installedApps_list for app in apps]
+    all_apps = array('l')
+    for apps in installedApps_list:
+        all_apps.extend(apps)
     count = count_values(all_apps)
     index = index_values(count, all_apps, other_threshold)
 
     max_length = 0
     res = []
     for apps in installedApps_list:
-        l = remap_feature(index, apps)
-        l.sort()
-        max_length = max(max_length, len(l))
-        # we want: sqrt(len(l) * value^2) == len(l) / max_length
-        value = math.sqrt(len(l)) / max_length
-        res.append([(idx, value) for idx in l])
+        idx = array('l', sorted(remap_feature(index, apps)))
+        max_length = max(max_length, len(idx))
+        # we want: sqrt(len(idx) * value^2) == len(idx) / max_length
+        value = math.sqrt(len(idx)) / max_length
+        res.append((idx, array_repeat('f', value, len(idx))))
 
     dump_meta(os.path.join(args.feature_dir, 'basic', 'installedApps.meta.json'),
               {'type': 'multi_hot', 'dimension': len(index),
                'max_length': max_length, 'index': index, 'count': count})
-    dump_feature(os.path.join(args.feature_dir,
-                              'basic', 'installedApps.pkl'), res)
+    dump_feature(os.path.join(args.feature_dir, 'basic', 'installedApps.pkl'), res)
     print 'done multi-hot feature: installedApps'
 
 

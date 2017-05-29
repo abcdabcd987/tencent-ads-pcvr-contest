@@ -4,6 +4,7 @@ import argparse
 import csv
 import sqlite3
 import os
+from array import array
 from collections import namedtuple, defaultdict
 from tqdm import tqdm
 
@@ -20,7 +21,7 @@ def get_installed_app_list(userID, time):
     cursor.execute('''SELECT appID FROM user_installedapps WHERE userID={userID} UNION
         SELECT appID FROM user_app_actions WHERE userID={userID} AND installTime<={installTime}
         '''.format(userID=userID, installTime=time))
-    return [x[0] for x in cursor.fetchall()]
+    return array('l', [x[0] for x in cursor.fetchall()])
 
 
 def augment_input(row):
@@ -91,9 +92,9 @@ def main(args):
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
     
-    features = defaultdict(list)
+    features = defaultdict(lambda: array('l'))
     installedApps_list = []
-    labels = []
+    labels = array('l')
 
     print 'building raw features from train...'
     make_features('train.csv', num_trains, 'label')

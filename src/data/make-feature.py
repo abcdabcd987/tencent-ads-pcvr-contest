@@ -5,14 +5,15 @@ import os
 import math
 from collections import namedtuple
 from tqdm import tqdm
+from array import array
 
 from utils import *
 
 
 def make_clickWeekday_clickHour(args):
     clickTimes = load_feature(os.path.join(args.feature_dir, 'raw', 'clickTime.pkl'))
-    clickWeekday = []
-    clickHour = []
+    clickWeekday = array('b')
+    clickHour = array('b')
     for clickTime in clickTimes:
         dd, hh, mm = clickTime / 10000, clickTime / 100 % 100, clickTime % 100
         clickWeekday.append(dd % 7)
