@@ -11,13 +11,13 @@ from utils import *
 
 
 def make_clickWeekday_clickHour(args):
-    clickTimes = load_feature(os.path.join(args.feature_dir, 'raw', 'clickTime.pkl'))
-    clickWeekday = array('b')
-    clickHour = array('b')
-    for clickTime in clickTimes:
+    clickTimes = load_feature(os.path.join(args.feature_dir, 'raw', 'clickTime.npy'))
+    clickWeekday = np.empty(len(clickTimes), dtype=np.int32)
+    clickHour = np.empty(len(clickTimes), dtype=np.int32)
+    for i, clickTime in enumerate(clickTimes):
         dd, hh, mm = clickTime / 10000, clickTime / 100 % 100, clickTime % 100
-        clickWeekday.append(dd % 7)
-        clickHour.append(hh)
+        clickWeekday[i] = dd % 7
+        clickHour[i] = hh
     meta = {'type': 'numeric', 'dimension': 1}
     dump_meta(os.path.join(args.feature_dir, 'extend', 'clickWeekday.meta.json'), meta)
     dump_feature(os.path.join(args.feature_dir, 'extend', 'clickWeekday.pkl'), clickWeekday)

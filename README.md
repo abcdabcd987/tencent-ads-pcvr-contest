@@ -11,16 +11,16 @@ pip install tqdm --user
     out/data/raw \
     out/data/preprocess/pre.db
 
-# 6.5GB Memory, 20 minutes on SSD
+# 3GB Memory, 20 minutes on SSD
 ./src/data/make-feature-raw.py \
     --input_dir out/data/raw \
     --output_dir out/data/features \
     --db out/data/preprocess/pre.db
 
-# 2GB Memory
+# 1GB Memory, 3 minutes
 ./src/data/make-feature-basic.py --feature_dir out/data/features
 
-# 40GB Memory, 10 minutes
+# 6GB Memory, 6 minutes
 ./src/data/make-feature-installedApps.py --feature_dir out/data/features
 
 # other features

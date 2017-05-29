@@ -2,6 +2,7 @@ import os
 import json
 import cPickle
 import itertools
+import numpy as np
 from array import array
 
 def get_num_lines(filename):
@@ -9,13 +10,12 @@ def get_num_lines(filename):
         return sum(1 for line in f)
 
 
-def dump_feature(filename, *objs):
+def dump_feature(filename, *arrays):
     dirname = os.path.dirname(filename)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
-    with open(filename, 'wb') as f:
-        for obj in objs:
-            cPickle.dump(obj, f, cPickle.HIGHEST_PROTOCOL)
+    arr = arrays[0] if isinstance(arrays, tuple) and len(arrays) == 1 else arrays
+    np.save(filename, arr)
 
 
 def dump_meta(filename, meta):
@@ -27,16 +27,7 @@ def dump_meta(filename, meta):
 
 
 def load_feature(filename):
-    with open(filename, 'rb') as f:
-        objs = []
-        try:
-            while True:
-                objs.append(cPickle.load(f))
-        except EOFError:
-            pass
-    if not objs:
-        return None
-    return objs[0] if len(objs) == 1 else objs
+    return np.load(filename)
 
 
 def load_meta(filename):
@@ -47,6 +38,7 @@ def load_meta(filename):
 def count_values(values):
     count = {}
     for value in values:
+        value = int(value)
         count[value] = count.get(value, 0) + 1
     return count
 
@@ -60,15 +52,12 @@ def index_values(count, values, threshold):
     return m
 
 
-def remap_feature(feature_map, values):
-    feature = array('l')
-    for value in values:
+def remap_feature(feature_map, values, dtype=np.int32):
+    feature = np.empty(len(values), dtype=dtype)
+    assert len(feature_map) < np.iinfo(dtype).max
+    for i, value in enumerate(values):
         idx = feature_map.get(value, None)
         if idx is None:
             idx = feature_map['__other__']
-        feature.append(idx)
+        feature[i] = idx
     return feature
-
-
-def array_repeat(typecode, value, times):
-    return array(typecode, itertools.repeat(value, times))
