@@ -27,6 +27,13 @@ python -m src.data.make_feature_installedApps
 python -m src.data.make_feature ACTION
 ```
 
+Copy the extracted features from NAS to your working directory:
+
+```bash
+mkdir -p out/data/features/
+cp -r /NAS/Workspaces/tencent-ads-pcvr-contest/features/* out/data/features/
+```
+
 ## Models
 
 #### DataReader Demo
@@ -35,14 +42,8 @@ python -m src.data.make_feature ACTION
 python -m src.model.data_reader_demo
 ```
 
-#### (Deprecated) `model_20170504_clq_naive_lr`
+#### Logistic Regression Demo
 
 ```bash
-export data_root=out/pre-20170504-naive
-python model/model_20170504_clq_naive_lr.py \
-    --data_root $data_root/ \
-    --output_root out/ \
-    --num_feature $(cat $data_root/num_features.txt) \
-    --num_one $(cat $data_root/num_ones.txt)
-tensorboard --logdir=out/logs --reload_interval 2 --port 6006
+python -m src.model.data_reader_lr_demo
 ```
