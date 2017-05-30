@@ -8,12 +8,13 @@ from array import array
 from collections import namedtuple
 from tqdm import tqdm
 
-from utils import *
+from .utils import *
+from ..utils import *
 
 
 def make_installedApps(other_threshold=4):
-    global args
-    installedApps_list = load_feature(os.path.join(args.feature_dir, 'raw', 'installedApps.npy'))
+    global config
+    installedApps_list = load_feature(os.path.join(config['features_dir'], 'raw', 'installedApps.npy'))
 
     all_apps = array('l')
     for apps in tqdm(installedApps_list):
@@ -34,20 +35,19 @@ def make_installedApps(other_threshold=4):
         res_idx.append(idx)
         res_val.append(val)
 
-    dump_meta(os.path.join(args.feature_dir, 'basic', 'installedApps.meta.json'),
+    dump_meta(os.path.join(config['features_dir'], 'basic', 'installedApps.meta.json'),
               {'type': 'multi_hot', 'dimension': len(index),
                'max_length': max_length, 'index': index, 'count': count})
-    dump_feature(os.path.join(args.feature_dir, 'basic', 'installedApps.npy'),
+    dump_feature(os.path.join(config['features_dir'], 'basic', 'installedApps.npy'),
                  res_idx, res_val)
     print 'done multi-hot feature: installedApps'
 
 
-def main(args):
+def main():
+    global config
+    config = read_global_config()
+
     make_installedApps(other_threshold=4)
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--feature_dir', type=str, required=True)
-    args = parser.parse_args()
-    main(args)
+main()

@@ -1,0 +1,5 @@
+{
+    // can be abspath, or relative path to the project root
+    "features_dir": "out/data/features",
+    "out_dir": "out"
+}

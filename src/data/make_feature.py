@@ -7,11 +7,13 @@ from collections import namedtuple
 from tqdm import tqdm
 from array import array
 
-from utils import *
+from .utils import *
+from ..utils import *
 
 
-def make_clickWeekday_clickHour(args):
-    clickTimes = load_feature(os.path.join(args.feature_dir, 'raw', 'clickTime.npy'))
+def make_clickWeekday_clickHour():
+    global config
+    clickTimes = load_feature(os.path.join(config['features_dir'], 'raw', 'clickTime.npy'))
     clickWeekday = np.empty(len(clickTimes), dtype=np.int32)
     clickHour = np.empty(len(clickTimes), dtype=np.int32)
     for i, clickTime in enumerate(clickTimes):
@@ -19,13 +21,15 @@ def make_clickWeekday_clickHour(args):
         clickWeekday[i] = dd % 7
         clickHour[i] = hh
     meta = {'type': 'numeric', 'dimension': 1}
-    dump_meta(os.path.join(args.feature_dir, 'extend', 'clickWeekday.meta.json'), meta)
-    dump_feature(os.path.join(args.feature_dir, 'extend', 'clickWeekday.pkl'), clickWeekday)
-    dump_meta(os.path.join(args.feature_dir, 'extend', 'clickHour.meta.json'), meta)
-    dump_feature(os.path.join(args.feature_dir, 'extend', 'clickHour.pkl'), clickHour)
+    dump_meta(os.path.join(config['features_dir'], 'extend', 'clickWeekday.meta.json'), meta)
+    dump_feature(os.path.join(config['features_dir'], 'extend', 'clickWeekday.pkl'), clickWeekday)
+    dump_meta(os.path.join(config['features_dir'], 'extend', 'clickHour.meta.json'), meta)
+    dump_feature(os.path.join(config['features_dir'], 'extend', 'clickHour.pkl'), clickHour)
 
 
-if __name__ == '__main__':
+def main():
+    global config
+    config = read_global_config()
     actions = [
         make_clickWeekday_clickHour,
     ]
@@ -33,8 +37,9 @@ if __name__ == '__main__':
     actions = {f.__name__: f for f in actions}
     parser = argparse.ArgumentParser()
     parser.add_argument('action', choices=actions.keys())
-    parser.add_argument('--feature_dir', type=str, required=True)
     args = parser.parse_args()
-    actions[args.action](args)
+    actions[args.action]()
     print 'done'
-    
+
+
+main()

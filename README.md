@@ -18,18 +18,24 @@ pip install tqdm --user
     --db out/data/preprocess/pre.db
 
 # 1GB Memory, 3 minutes
-./src/data/make-feature-basic.py --feature_dir out/data/features
+python -m src.data.make_feature_basic
 
 # 6GB Memory, 6 minutes
-./src/data/make-feature-installedApps.py --feature_dir out/data/features
+python -m src.data.make_feature_installedApps
 
 # other features
-./src/data/make-feature.py ACTION --feature_dir out/data/features
+python -m src.data.make_feature ACTION
 ```
 
 ## Models
 
-#### `model_20170504_clq_naive_lr`
+#### DataReader Demo
+
+```bash
+python -m src.model.data_reader_demo
+```
+
+#### (Deprecated) `model_20170504_clq_naive_lr`
 
 ```bash
 export data_root=out/pre-20170504-naive
