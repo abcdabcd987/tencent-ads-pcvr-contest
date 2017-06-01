@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import argparse
 import csv
@@ -9,7 +9,7 @@ from array import array
 from collections import namedtuple, defaultdict
 from tqdm import tqdm
 
-from utils import *
+from .utils import *
 
 
 FeatureItem = namedtuple('FeatureItem', ['name', 'value'])
@@ -97,14 +97,14 @@ def main(args):
     installedApps_list = []
     labels = array('l')
 
-    print 'building raw features from train...'
+    print('building raw features from train...')
     make_features('train.csv', num_trains, 'label')
     
-    print 'building raw features from test...'
+    print('building raw features from test...')
     make_features('test.csv', num_tests, 'instanceID')
     
-    print 'writing raw features to disk...'
-    for feature_name, feature_list in features.iteritems():
+    print('writing raw features to disk...')
+    for feature_name, feature_list in features.items():
         feature_list = np.asarray(feature_list, dtype=np.int32)
         dump_feature(os.path.join(args.output_dir, 'raw', feature_name + '.npy'), feature_list)
     dump_feature(os.path.join(args.output_dir, 'raw', 'installedApps.npy'), installedApps_list)

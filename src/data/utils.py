@@ -1,6 +1,6 @@
 import os
 import json
-import cPickle
+import pickle
 import itertools
 import numpy as np
 from array import array
@@ -44,7 +44,7 @@ def count_values(values):
 
 
 def index_values(count, values, threshold):
-    l = sorted(count.iteritems(), key=lambda (value, cnt): value)
+    l = sorted(count.items(), key=lambda value_cnt: value_cnt[0])
     m = {'__other__': 0}
     for category, count in l:
         if count >= threshold:

@@ -1,4 +1,3 @@
-from __future__ import print_function
 import os
 import abc
 import sys
@@ -17,7 +16,7 @@ class DataStorage(object):
         self._feature_names = features
         self._load_metas()
         self._partition_datasets()
-    
+
     def _load_metas(self):
         self._feature_metas = []
         for name in self._feature_names:
@@ -31,7 +30,7 @@ class DataStorage(object):
             self._feature_data.append(data)
         self._labels = load_feature(os.path.join(self._features_dir, 'label.npy'))
         self._data_loaded = True
-    
+
     def _partition_datasets(self):
         def do(out, clickTimes, date_st, date_ed, name):
             st = np.searchsorted(clickTimes, date_st * 10000)
@@ -49,7 +48,7 @@ class DataStorage(object):
         do(self._datasets, clickTimes, 30, 30, 'val4')
         do(self._datasets, clickTimes, 17, 30, 'train')
         do(self._datasets, clickTimes, 31, 31, 'test')
-    
+
     def get_representation(self, representation_class):
         if not issubclass(representation_class, FeatureRepresentationBase):
             raise TypeError(repr(representation_class) + ' is not subclass of FeatureRepresentationBase')
@@ -66,15 +65,15 @@ class DataStorage(object):
     @property
     def feature_data(self):
         return self._feature_data
-    
+
     @property
     def feature_labels(self):
         return self._labels
-    
+
     @property
     def dataset_slices(self):
         return self._datasets
-    
+
     @property
     def data_loaded(self):
         return self._data_loaded
