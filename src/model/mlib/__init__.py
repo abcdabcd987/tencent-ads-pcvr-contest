@@ -1,1 +1,2 @@
-from .modeltemplate import ModelTemplate
+from src.model import mlib
+from mlib import ModelTemplate

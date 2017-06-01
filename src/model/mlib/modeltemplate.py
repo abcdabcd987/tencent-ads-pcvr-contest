@@ -1,7 +1,6 @@
 import os, zipfile, numpy as np, tensorflow as tf
 from datetime import datetime
-from src.model.mlib import tfutils
-from src import utils
+from src import utils, tfutils
 
 class KeyMap:
 	@classmethod
