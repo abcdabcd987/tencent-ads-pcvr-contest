@@ -1,6 +1,7 @@
 import os, zipfile, numpy as np, tensorflow as tf
 from datetime import datetime
-from . import tfutils
+from src.model.mlib import tfutils
+from src import utils
 
 class KeyMap:
 	@classmethod
@@ -120,10 +121,4 @@ class ModelTemplate(object):
 		res.sort(key=lambda v: v[0])
 
 		filename = os.path.join(self._test_dir, self._session_name)
-		with open(filename + '.csv', 'w') as f:
-			f.write('instanceID,prob\n')
-			for i, prob in res:
-				f.write('{:d},{:.16f}\n'.format(i, prob))
-		with zipfile.ZipFile(filename + '.zip', 'w', zipfile.ZIP_DEFLATED) as z:
-			z.write(filename + '.csv', 'submission.csv')
-		print('test result wrote to', filename + '.csv')
+		utils.write_zip(filename)
