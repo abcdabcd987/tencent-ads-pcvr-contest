@@ -2,9 +2,7 @@ import abc
 import numpy as np
 
 
-class FeatureBatchIterator:
-    __metaclass__ = abc.ABCMeta
-
+class FeatureBatchIterator(metaclass=abc.ABCMeta):
     def __init__(self, representation, dataset, batch_size, allow_smaller_final_batch):
         self._r = representation
         self._dataset = dataset
@@ -30,13 +28,11 @@ class FeatureBatchIterator:
         return self
 
     @abc.abstractmethod
-    def next(self):
+    def __next__(self):
         pass
 
 
-class FeatureRepresentationBase:
-    __metaclass__ = abc.ABCMeta
-
+class FeatureRepresentationBase(metaclass=abc.ABCMeta):
     def __init__(self, data_storage):
         self._storage = data_storage
         self._setup()
