@@ -1,5 +1,7 @@
 # tencent-ads-pcvr-contest
 
+[Google Docs](https://docs.google.com/document/d/1WjTEfZee6BpXMGkQAVd-5T3vTD2y9mkwSt-w0djw0WA/edit?usp=sharing)
+
 ## Data Preprocess
 
 ```bash
@@ -11,32 +13,41 @@ pip install tqdm --user
     out/data/raw \
     out/data/preprocess/pre.db
 
-# 6.5GB Memory, 20 minutes on SSD
+# 3GB memory, 20 minutes on SSD
 ./src/data/make-feature-raw.py \
     --input_dir out/data/raw \
     --output_dir out/data/features \
     --db out/data/preprocess/pre.db
 
-# 2GB Memory
-./src/data/make-feature-basic.py --feature_dir out/data/features
+# 1GB memory, 3 minutes
+python -m src.data.make_feature_basic
 
-# 40GB Memory, 10 minutes
-./src/data/make-feature-installedApps.py --feature_dir out/data/features
+# 6GB memory, 6 minutes
+python -m src.data.make_feature_installedApps
 
 # other features
-./src/data/make-feature.py ACTION --feature_dir out/data/features
+python -m src.data.make_feature ACTION
+```
+
+Copy the extracted features from NAS to your working directory:
+
+```bash
+mkdir -p out/data/features/
+cp -r /NAS/Workspaces/tencent-ads-pcvr-contest/features/* out/data/features/
 ```
 
 ## Models
 
-#### `model_20170504_clq_naive_lr`
+#### DataReader Demo
 
 ```bash
-export data_root=out/pre-20170504-naive
-python model/model_20170504_clq_naive_lr.py \
-    --data_root $data_root/ \
-    --output_root out/ \
-    --num_feature $(cat $data_root/num_features.txt) \
-    --num_one $(cat $data_root/num_ones.txt)
-tensorboard --logdir=out/logs --reload_interval 2 --port 6006
+# 1GB memory
+python -m src.model.data_reader_demo
+```
+
+#### Logistic Regression Demo
+
+```bash
+# 4GB memory
+python -m src.model.data_reader_lr_demo --train
 ```

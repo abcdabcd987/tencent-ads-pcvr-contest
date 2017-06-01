@@ -1,0 +1,32 @@
+{
+    "features": [
+        // ad
+        "basic/creativeID",
+        "basic/adID",
+        "basic/camgaignID",
+        "basic/advertiserID",
+        "basic/appPlatform",
+
+        // app
+        "basic/appID",
+        "basic/appCategory",
+
+        // user
+        "basic/userID",
+        "basic/age",
+        "basic/gender",
+        "basic/education",
+        "basic/marriageStatus",
+        "basic/haveBaby",
+        "basic/hometown",
+        "basic/residence",
+        // "basic/installedApps",
+
+        // context
+        "basic/positionID",
+        "basic/sitesetID",
+        "basic/positionType",
+        "basic/connectionType",
+        "basic/telecomsOperator"
+    ]
+}

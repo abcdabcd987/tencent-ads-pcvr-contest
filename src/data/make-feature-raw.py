@@ -4,6 +4,7 @@ import argparse
 import csv
 import sqlite3
 import os
+import numpy as np
 from array import array
 from collections import namedtuple, defaultdict
 from tqdm import tqdm
@@ -21,7 +22,7 @@ def get_installed_app_list(userID, time):
     cursor.execute('''SELECT appID FROM user_installedapps WHERE userID={userID} UNION
         SELECT appID FROM user_app_actions WHERE userID={userID} AND installTime<={installTime}
         '''.format(userID=userID, installTime=time))
-    return array('l', [x[0] for x in cursor.fetchall()])
+    return np.array([x[0] for x in cursor.fetchall()], dtype=np.int32)
 
 
 def augment_input(row):
@@ -104,9 +105,11 @@ def main(args):
     
     print 'writing raw features to disk...'
     for feature_name, feature_list in features.iteritems():
-        dump_feature(os.path.join(args.output_dir, 'raw', feature_name + '.pkl'), feature_list)
-    dump_feature(os.path.join(args.output_dir, 'raw', 'installedApps.pkl'), installedApps_list)
-    dump_feature(os.path.join(args.output_dir, 'label.pkl'), labels)
+        feature_list = np.asarray(feature_list, dtype=np.int32)
+        dump_feature(os.path.join(args.output_dir, 'raw', feature_name + '.npy'), feature_list)
+    dump_feature(os.path.join(args.output_dir, 'raw', 'installedApps.npy'), installedApps_list)
+    labels = np.asarray(labels, dtype=np.int32)
+    dump_feature(os.path.join(args.output_dir, 'label.npy'), labels)
 
 
 if __name__ == '__main__':

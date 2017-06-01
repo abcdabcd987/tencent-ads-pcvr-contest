@@ -1,0 +1,7 @@
+{
+    // can be abspath, or relative path to the project root
+    "features_dir": "out/data/features",
+    "models_dir": "out/models",
+    "tests_dir": "out/tests",
+    "logs_dir": "out/logs"
+}
