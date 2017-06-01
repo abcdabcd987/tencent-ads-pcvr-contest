@@ -40,7 +40,7 @@ def make_installedApps(other_threshold=4):
                'max_length': max_length, 'index': index, 'count': count})
     dump_feature(os.path.join(config['features_dir'], 'basic', 'installedApps.npy'),
                  res_idx, res_val)
-    print 'done multi-hot feature: installedApps'
+    print('done multi-hot feature: installedApps')
 
 
 def main():

@@ -1,7 +1,6 @@
 import os, zipfile, numpy as np, tensorflow as tf
 from datetime import datetime
-from mlib import tfutils
-from mlib.datareader import BufferedDataReader
+from . import tfutils
 
 class KeyMap:
 	@classmethod
@@ -118,7 +117,7 @@ class ModelTemplate(object):
 		for xs, ys in self._get_dataset(dataset):
 			probs = sess.run(self._prob, feed_dict={self._ph_x: xs})
 			res.extend([(i, prob) for i, prob in zip(ys, probs)])
-		res.sort(key=lambda (i, prob): i)
+		res.sort(key=lambda v: v[0])
 
 		filename = os.path.join(self._test_dir, self._session_name)
 		with open(filename + '.csv', 'w') as f:

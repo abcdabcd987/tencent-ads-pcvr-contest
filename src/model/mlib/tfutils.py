@@ -15,7 +15,7 @@ def load_session(sess, saver, model_path):
 	checkpoint = tf.train.get_checkpoint_state(model_path)
 	if checkpoint and checkpoint.model_checkpoint_path:
 		saver.restore(sess, checkpoint.model_checkpoint_path)
-		print "model loaded:", checkpoint.model_checkpoint_path
+		print("model loaded:", checkpoint.model_checkpoint_path)
 	else:
 		raise Exception("no model found in " + model_path)
 

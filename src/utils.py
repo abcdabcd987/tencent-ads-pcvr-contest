@@ -9,7 +9,7 @@ def _abs_path(dictionary, key, relative_root):
 
 def json_load(filename):
     l = []
-    with open(filename, 'rb') as f:
+    with open(filename, 'r') as f:
         for line in f:
             strip = line.strip()
             if not strip.startswith('//'):

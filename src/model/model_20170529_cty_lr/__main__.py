@@ -1,4 +1,5 @@
-from .. import mlib
+from src.model import mlib
+from src import utils, data
 
 class LinearRegressionCTR(mlib.ModelTemplate):
     pass
@@ -11,8 +12,8 @@ def parse_args():
     return args
 
 def main():
-    config = read_module_config(__file__, 'model.json')
-    data_storage = DataStorage(config['features'])
+    config = utils.read_module_config(__file__, 'model.json')
+    data_storage = data.DataStorage(config['features'])
     args = parse_args()
 
     model = LogisticRegressionCTR(data_storage)
@@ -26,7 +27,7 @@ def main():
             model.train('smalltrain1')
             model.save()
             model.validate('val1')
-    print 'testing...'
+    print('testing...')
     model.test('test')
 
 main()

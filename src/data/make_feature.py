@@ -36,10 +36,10 @@ def main():
 
     actions = {f.__name__: f for f in actions}
     parser = argparse.ArgumentParser()
-    parser.add_argument('action', choices=actions.keys())
+    parser.add_argument('action', choices=list(actions.keys()))
     args = parser.parse_args()
     actions[args.action]()
-    print 'done'
+    print('done')
 
 
 main()

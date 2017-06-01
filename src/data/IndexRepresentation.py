@@ -3,7 +3,7 @@ import numpy as np
 from .RepresentationBase import *
 
 class IndexBatchIterator(FeatureBatchIterator):
-    def next(self):
+    def __next__(self):
         s = self._r.storage
         if not s.data_loaded:
             raise RuntimeError('Datastorage has not loaded feature data yet.')

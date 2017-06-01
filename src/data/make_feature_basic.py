@@ -23,7 +23,7 @@ def make_onehot_feature(name, other_threshold=4):
     dump_meta(os.path.join(config['features_dir'], 'basic', name + '.meta.json'),
               {'type': 'one_hot', 'dimension': len(index), 'index': index, 'count': count})
     dump_feature(os.path.join(config['features_dir'], 'basic', name + '.npy'), res)
-    print 'done one-hot feature:', name
+    print('done one-hot feature:', name)
 
 
 def main():
