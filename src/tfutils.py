@@ -1,4 +1,4 @@
-import numpy as np, tensorflow as tf
+import numpy as np, tensorflow as tf, os
 
 def make_global_step():
 	return tf.get_variable("global_step", (), dtype=tf.int64,

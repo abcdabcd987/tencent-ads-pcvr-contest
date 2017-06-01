@@ -1,6 +1,7 @@
 import os, zipfile, numpy as np, tensorflow as tf
 from datetime import datetime
 from src import utils, tfutils
+from src.data import IndexRepresentation
 
 class KeyMap:
 	@classmethod
@@ -120,4 +121,4 @@ class ModelTemplate(object):
 		res.sort(key=lambda v: v[0])
 
 		filename = os.path.join(self._test_dir, self._session_name)
-		utils.write_zip(filename)
+		utils.write_zip(filename, res)

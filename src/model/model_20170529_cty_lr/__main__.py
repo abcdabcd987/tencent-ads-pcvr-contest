@@ -1,3 +1,4 @@
+import argparse
 from src.model import mlib
 from src import utils, data
 
@@ -16,7 +17,7 @@ def main():
 	data_storage = data.DataStorage(config['features'])
 	args = parse_args()
 
-	model = LogisticRegressionCTR(data_storage)
+	model = LinearRegressionCTR(data_storage, config)
 	data_storage.load_data()
 	print('feature data loaded')
 	if args.model:
