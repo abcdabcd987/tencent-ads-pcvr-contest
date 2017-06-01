@@ -44,7 +44,7 @@ def count_values(values):
 
 
 def index_values(count, values, threshold):
-    l = sorted(iter(count.items()), key=lambda value_cnt: value_cnt[0])
+    l = sorted(count.items(), key=lambda value_cnt: value_cnt[0])
     m = {'__other__': 0}
     for category, count in l:
         if count >= threshold:

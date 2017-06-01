@@ -28,7 +28,7 @@ class FeatureBatchIterator(metaclass=abc.ABCMeta):
         return self
 
     @abc.abstractmethod
-    def next(self):
+    def __next__(self):
         pass
 
 

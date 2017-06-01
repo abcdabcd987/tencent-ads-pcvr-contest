@@ -2,6 +2,8 @@
 
 [Google Docs](https://docs.google.com/document/d/1WjTEfZee6BpXMGkQAVd-5T3vTD2y9mkwSt-w0djw0WA/edit?usp=sharing)
 
+This project uses Python 3.
+
 ## Data Preprocess
 
 ```bash
@@ -20,13 +22,13 @@ pip install tqdm --user
     --db out/data/preprocess/pre.db
 
 # 1GB memory, 3 minutes
-python -m src.data.make_feature_basic
+python3 -m src.data.make_feature_basic
 
 # 6GB memory, 6 minutes
-python -m src.data.make_feature_installedApps
+python3 -m src.data.make_feature_installedApps
 
 # other features
-python -m src.data.make_feature ACTION
+python3 -m src.data.make_feature ACTION
 ```
 
 Copy the extracted features from NAS to your working directory:
@@ -42,12 +44,12 @@ cp -r /NAS/Workspaces/tencent-ads-pcvr-contest/features/* out/data/features/
 
 ```bash
 # 1GB memory
-python -m src.model.data_reader_demo
+python3 -m src.model.data_reader_demo
 ```
 
 #### Logistic Regression Demo
 
 ```bash
 # 4GB memory
-python -m src.model.data_reader_lr_demo --train
+python3 -m src.model.data_reader_lr_demo --train
 ```

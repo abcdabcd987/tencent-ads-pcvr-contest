@@ -1,2 +1,2 @@
-from .DataStorage import *
-from .IndexRepresentation import *
+from .DataStorage import DataStorage
+from .IndexRepresentation import IndexBatchIterator, IndexRepresentation

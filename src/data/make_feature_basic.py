@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 import os
 import math
 import numpy as np

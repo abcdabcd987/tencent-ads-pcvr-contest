@@ -57,7 +57,7 @@ class LogisticRegressionCTR(object):
         checkpoint = tf.train.get_checkpoint_state(model_path)
         if checkpoint and checkpoint.model_checkpoint_path:
             self._saver.restore(self._sess, checkpoint.model_checkpoint_path)
-            print(("model loaded:", checkpoint.model_checkpoint_path))
+            print("model loaded:", checkpoint.model_checkpoint_path)
         else:
             raise Exception("no model found in " + model_path)
 
@@ -102,7 +102,7 @@ class LogisticRegressionCTR(object):
                 f.write('{:d},{:.16f}\n'.format(i, prob))
         with zipfile.ZipFile(filename + '.zip', 'w', zipfile.ZIP_DEFLATED) as z:
             z.write(filename + '.csv', 'submission.csv')
-        print(('test result wrote to', filename + '.csv'))
+        print('test result wrote to', filename + '.csv')
 
 
 def main():

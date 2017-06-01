@@ -5,11 +5,11 @@ import json
 def _abs_path(dictionary, key, relative_root):
     if key in dictionary and not os.path.isabs(dictionary[key]):
         dictionary[key] = os.path.join(relative_root, dictionary[key])
-    
+
 
 def json_load(filename):
     l = []
-    with open(filename, 'r') as f:
+    with open(filename) as f:
         for line in f:
             strip = line.strip()
             if not strip.startswith('//'):
@@ -30,7 +30,7 @@ def read_global_config():
     project_dir = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
     filename = os.path.join(project_dir, 'global.json')
     config = json_load(filename)
-    keys = config.keys()
+    keys = list(config.keys())
     for key in keys:
         if key.endswith('_dir'):
             _abs_path(config, key, project_dir)
