@@ -23,12 +23,12 @@ class ModelTemplate(object):
 		self._learning_rate = config['learning_rate']
 		self._batch_size = config['batch_size']
 		self._optimizer = config.get('initializer', 'adam')
-		self._session_name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_' + config['module_name']
+		self._session_name = os.path.join(config["session_time"] + '_' + config['module_name'], config["nameid"])
 		self._model_dir = os.path.join(config['models_dir'], self._session_name)
 		self._log_dir = os.path.join(config['logs_dir'], self._session_name)
 		self._train_log_dir = os.path.join(self._log_dir, "train")
 		self._val_log_dir = os.path.join(self._log_dir, "val")
-		self._test_dir = config['tests_dir']
+		self._test_dir = os.path.join(config['tests_dir'], self._session_name)
 
 		self._makefolders()
 
@@ -39,8 +39,7 @@ class ModelTemplate(object):
 		os.makedirs(self._log_dir)
 		os.makedirs(self._train_log_dir)
 		os.makedirs(self._val_log_dir)
-		if not os.path.exists(self._test_dir):
-			os.makedirs(self._test_dir)
+		os.makedirs(self._test_dir)
 
 	def _body(self):
 		w = tf.get_variable('weight', [self._num_feature], dtype=tf.float32,
@@ -120,5 +119,5 @@ class ModelTemplate(object):
 			res.extend([(i, prob) for i, prob in zip(ys, probs)])
 		res.sort(key=lambda v: v[0])
 
-		filename = os.path.join(self._test_dir, self._session_name)
+		filename = os.path.join(self._test_dir, 'result')
 		utils.write_zip(filename, res)

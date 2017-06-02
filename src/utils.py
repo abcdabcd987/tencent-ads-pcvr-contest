@@ -38,6 +38,7 @@ def read_global_config():
 
 	return config
 
+
 def write_zip(filename, res):
 	with open(filename + '.csv', 'w') as f:
 		f.write('instanceID,prob\n')

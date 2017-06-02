@@ -12,23 +12,46 @@ def parse_args():
 	args, _ = parser.parse_known_args()
 	return args
 
+def run_model(args):
+	args.config["nameid"] = args.nameid
+	print("processing nameid: {}".format(args.nameid))
+
+	model = LinearRegressionCTR(args.data_storage, args.config)
+	args.data_storage.load_data()
+	print('feature data loaded')
+
+	if args.model:
+		model.load(args.model)
+	print("training...")
+	for _ in range(args.config['epoch']):
+		model.train(args.train)
+		model.save()
+		if args.val is not None:
+			model.validate(args.val)
+	if args.test is not None:
+		print('testing...')
+		model.test(args.test)
+
 def main():
 	config = utils.read_module_config(__file__, 'model.json')
 	data_storage = data.DataStorage(config['features'])
 	args = parse_args()
 
-	model = LinearRegressionCTR(data_storage, config)
-	data_storage.load_data()
-	print('feature data loaded')
-	if args.model:
-		model.load(args.model)
-	if args.train:
-		print('training...')
-		for _ in range(config['epoch']):
-			model.train('smalltrain1')
-			model.save()
-			model.validate('val1')
-	print('testing...')
-	model.test('test')
+	config["session_time"] = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+	modelarg = argparse.Namespace()
+	modelarg.config = config
+	modelarg.data_storage = data_storage
+	modelarg.model = args.model
+	for i in range(1, 5):
+		modelarg.nameid = str(i)
+		modelarg.train = 'smalltrain{}'.format(i)
+		modelarg.val = 'val{}'.format(i)
+		modelarg.test = False
+		run_model(modelarg)
+	modelarg.nameid = 'final'
+	modelarg.train = 'train'
+	modelarg.val = None
+	modelarg.test = 'test'
+	run_model(modelarg)
 
 main()
