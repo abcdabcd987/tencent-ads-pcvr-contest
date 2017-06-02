@@ -1,6 +1,7 @@
 import argparse
 from src.model import mlib
 from src import utils, data
+from datetime import datetime
 
 class LinearRegressionCTR(mlib.ModelTemplate):
 	pass
@@ -46,7 +47,7 @@ def main():
 		modelarg.nameid = str(i)
 		modelarg.train = 'smalltrain{}'.format(i)
 		modelarg.val = 'val{}'.format(i)
-		modelarg.test = False
+		modelarg.test = None
 		run_model(modelarg)
 	modelarg.nameid = 'final'
 	modelarg.train = 'train'
