@@ -10,6 +10,7 @@ class IndexBatchIterator(FeatureBatchIterator):
         indexes = self._get_batch_perm()
         xs = np.zeros((len(indexes), self._r.max_length), dtype=np.int32)
         ys = np.array(s.feature_labels[indexes], copy=True, dtype=np.int32)
+        rowids = indexes
         for i, index in enumerate(indexes):
             j = 0
             for meta, data, offset in zip(s.feature_metas, s.feature_data, self._r.dimension_offsets):
@@ -24,7 +25,7 @@ class IndexBatchIterator(FeatureBatchIterator):
                         j += 1
                 else:
                     raise NotImplementedError('IndexBatchIterator forgets to support feature type: ' + repr(meta['type']))
-        return xs, ys
+        return xs, ys, rowids
 
 
 class IndexRepresentation(FeatureRepresentationBase):
@@ -37,7 +38,7 @@ class IndexRepresentation(FeatureRepresentationBase):
             IndexRepresentation._multihot_warned = True
 
         self._offsets = []
-        self._dense_shape = 0
+        self._dense_shape = 1  # make 0 never appears, so that it can be safely used as default value
         self._max_length = 0
         for name, meta in zip(self._storage.feature_names, self._storage.feature_metas):
             if meta['type'] == 'one_hot':

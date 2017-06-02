@@ -31,14 +31,14 @@ def load_feature(filename):
 
 
 def load_meta(filename):
-    with open(filename, 'rb') as f:
+    with open(filename) as f:
         return json.load(f)
 
 
 def count_values(values):
     count = {}
     for value in values:
-        value = int(value)
+        value = str(value)
         count[value] = count.get(value, 0) + 1
     return count
 

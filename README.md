@@ -8,7 +8,7 @@ This project uses Python 3.
 
 ```bash
 sudo apt-get install -y sqlite
-pip install tqdm --user
+pip3 install tqdm --user
 
 # convert csv to database for quick random access
 ./src/data/create-db.sh \
@@ -51,5 +51,5 @@ python3 -m src.model.data_reader_demo
 
 ```bash
 # 4GB memory
-python3 -m src.model.data_reader_lr_demo --train
+python3 -m src.model.data_reader_lr_demo --train --test --predict
 ```
