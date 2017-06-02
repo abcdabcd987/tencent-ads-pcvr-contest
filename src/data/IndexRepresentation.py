@@ -38,7 +38,7 @@ class IndexRepresentation(FeatureRepresentationBase):
             IndexRepresentation._multihot_warned = True
 
         self._offsets = []
-        self._dense_shape = 0
+        self._dense_shape = 1  # make 0 never appears, so that it can be safely used as default value
         self._max_length = 0
         for name, meta in zip(self._storage.feature_names, self._storage.feature_metas):
             if meta['type'] == 'one_hot':
