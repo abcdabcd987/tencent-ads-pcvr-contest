@@ -1,4 +1,5 @@
 import time
+import numpy as np
 from ...data import *
 from ...utils import *
 
@@ -17,13 +18,18 @@ def main():
     print('feature data is loaded')
 
     dataset = 'val1'
+    min_rowid = float('+inf')
+    max_rowid = float('-inf')
     tic = time.time()
     data = rep.get_dataset(dataset=dataset,
                            batch_size=512,
                            allow_smaller_final_batch=True)
-    for i, (xs, ys) in enumerate(data):
-        print('step', i, 'xs.shape', xs.shape, 'ys.shape', ys.shape)
+    for i, (xs, ys, rowids) in enumerate(data):
+        print('step', i, 'xs.shape', xs.shape, 'ys.shape', ys.shape, 'rowids.shape', rowids.shape)
+        min_rowid = min(min_rowid, np.min(rowids))
+        max_rowid = max(max_rowid, np.max(rowids))
     toc = time.time()
+    print('min_rowid', min_rowid, 'max_rowid', max_rowid)
     print('read', dataset, 'in', toc-tic, 'seconds')
 
 main()

@@ -4,6 +4,7 @@ import argparse
 import zipfile
 import numpy as np
 import tensorflow as tf
+from tqdm import tqdm
 from pprint import pprint
 from datetime import datetime
 
@@ -66,8 +67,9 @@ class LogisticRegressionCTR(object):
         self._saver.save(self._sess, filename, global_step=self._step)
 
     def train(self, dataset):
+        print('training on', dataset)
         self._sess.run(tf.local_variables_initializer())
-        for xs, ys in self._rep.get_dataset(dataset, self._batch_size):
+        for xs, ys, rowids in tqdm(self._rep.get_dataset(dataset, self._batch_size)):
             self._step += 1
             _, _, summary = self._sess.run([self._train_step, self._auc_op, self._summary_step],
                                             feed_dict={self._ph_x: xs, self._ph_y: ys})
@@ -77,16 +79,18 @@ class LogisticRegressionCTR(object):
                 self._summary_writer.flush()
 
     def validate(self, dataset):
+        print('validating on', dataset)
         self._sess.run(tf.local_variables_initializer())
-        for xs, ys in self._rep.get_dataset(dataset, self._batch_size):
+        for xs, ys, rowids in tqdm(self._rep.get_dataset(dataset, self._batch_size)):
             self._sess.run(self._auc_op, feed_dict={self._ph_x: xs, self._ph_y: ys})
         auc = self._sess.run(self._auc)
         summary = tf.Summary(value=[tf.Summary.Value(tag='val_auc', simple_value=auc)])
         self._summary_writer.add_summary(summary, self._step)
 
     def test(self, dataset):
+        print('testing on', dataset)
         res = []
-        for xs, ys in self._rep.get_dataset(dataset, self._batch_size):
+        for xs, ys, rowids in tqdm(self._rep.get_dataset(dataset, self._batch_size)):
             probs = self._sess.run(self._prob, feed_dict={self._ph_x: xs})
             for i, prob in zip(ys, probs):
                 res.append((i, prob))
@@ -103,12 +107,32 @@ class LogisticRegressionCTR(object):
         with zipfile.ZipFile(filename + '.zip', 'w', zipfile.ZIP_DEFLATED) as z:
             z.write(filename + '.csv', 'submission.csv')
         print('test result wrote to', filename + '.csv')
+    
+    def write_results(self):
+        datasets = ['train', 'test']
+        res = []
+        for dataset in datasets:
+            print('predicting on', dataset)
+            for xs, ys, rowids in tqdm(self._rep.get_dataset(dataset, self._batch_size)):
+                probs = self._sess.run(self._prob, feed_dict={self._ph_x: xs})
+                for i, prob in zip(rowids, probs):
+                    res.append((i, prob))
+        res.sort(key=lambda i_prob: i_prob[0])
+        dirname = os.path.join(config['results_dir'], config['module_name'])
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        filename = os.path.join(dirname, datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.txt')
+        with open(filename, 'w') as f:
+            for i, prob in res:
+                f.write('{:.16e}\n'.format(prob))
 
 
 def main():
     data_storage = DataStorage(config['features'])
     parser = argparse.ArgumentParser()
     parser.add_argument('--train', action='store_true')
+    parser.add_argument('--test', action='store_true')
+    parser.add_argument('--predict', action='store_true')
     parser.add_argument('--model', type=str, help='load model from the given path')
     # todo: how about loading model? should it be in the config file?
     args, _ = parser.parse_known_args()
@@ -120,12 +144,17 @@ def main():
         model.load(args.model)
     if args.train:
         print('training...')
-        for _ in range(config['epoch']):
-            model.train('smalltrain1')
-            model.save()
-            model.validate('val1')
-    print('testing...')
-    model.test('test')
+        for i in range(4):
+            for _ in range(config['epoch']):
+                model.train('smalltrain{}'.format(i + 1))
+                model.save()
+                model.validate('val{}'.format(i + 1))
+    if args.test:
+        print('testing...')
+        model.test('test')
+    if args.predict:
+        print('predicting for ensemble model...')
+        model.write_results()
 
 
 main()

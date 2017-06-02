@@ -26,6 +26,9 @@ class FeatureBatchIterator(metaclass=abc.ABCMeta):
     
     def __iter__(self):
         return self
+    
+    def __len__(self):
+        return (len(self._perm) + self._batch_size - 1) // self._batch_size
 
     @abc.abstractmethod
     def __next__(self):
