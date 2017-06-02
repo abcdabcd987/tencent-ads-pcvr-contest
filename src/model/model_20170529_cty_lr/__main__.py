@@ -1,7 +1,5 @@
 import argparse
-from src.model import mlib
-from src import utils, data
-from datetime import datetime
+from .. import mlib
 
 class LinearRegressionCTR(mlib.ModelTemplate):
 	pass
@@ -13,46 +11,28 @@ def parse_args():
 	args, _ = parser.parse_known_args()
 	return args
 
-def run_model(args):
-	args.config["nameid"] = args.nameid
-	print("processing nameid: {}".format(args.nameid))
-
-	model = LinearRegressionCTR(args.data_storage, args.config)
-	args.data_storage.load_data()
-	print('feature data loaded')
-
+def run_session(args, config):
+	sess = mlib.Session(config)
 	if args.model:
-		model.load(args.model)
+		sess.load(args.model)
 	print("training...")
-	for _ in range(args.config['epoch']):
-		model.train(args.train)
-		model.save()
-		if args.val is not None:
-			model.validate(args.val)
-	if args.test is not None:
+	for _ in range(config.epoch):
+		sess.train(args.train)
+		if config.val is not None:
+			sess.validate(config.val)
+	if config.test is not None:
 		print('testing...')
-		model.test(args.test)
+		sess.test(config.test)
+	sess.save()
 
 def main():
-	config = utils.read_module_config(__file__, 'model.json')
-	data_storage = data.DataStorage(config['features'])
 	args = parse_args()
+	config = mlib.Config.from_json(__file__, 'model.json')
+	mlib.Datasets(config.data_config)
+	LinearRegressionCTR(config.model_config)
 
-	config["session_time"] = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-	modelarg = argparse.Namespace()
-	modelarg.config = config
-	modelarg.data_storage = data_storage
-	modelarg.model = args.model
-	for i in range(1, 5):
-		modelarg.nameid = str(i)
-		modelarg.train = 'smalltrain{}'.format(i)
-		modelarg.val = 'val{}'.format(i)
-		modelarg.test = None
-		run_model(modelarg)
-	modelarg.nameid = 'final'
-	modelarg.train = 'train'
-	modelarg.val = None
-	modelarg.test = 'test'
-	run_model(modelarg)
+	for i in [1, 2, 3, 4]:
+		run_session(args, config.session_config(sessid))
+	run_session(args, config.session_config(sessid))
 
 main()

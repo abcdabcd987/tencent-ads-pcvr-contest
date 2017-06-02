@@ -6,10 +6,10 @@ def make_global_step():
 						   collections=[tf.GraphKeys.GLOBAL_VARIABLES,
 										tf.GraphKeys.GLOBAL_STEP])
 
-def create_session():
+def create_session(graph=None):
 	config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)
 	config.gpu_options.allow_growth=True
-	return tf.Session(config=config)
+	return tf.Session(graph=graph, config=config)
 
 def load_session(sess, saver, model_path):
 	checkpoint = tf.train.get_checkpoint_state(model_path)
