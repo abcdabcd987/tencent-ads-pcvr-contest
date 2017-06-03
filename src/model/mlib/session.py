@@ -8,7 +8,7 @@ class Session(object):
 		self._model_dir = config.sess_dirs.model_dir
 		self._train_log_dir = config.sess_dirs.train_log_dir
 		self._val_log_dir = config.sess_dirs.val_log_dir
-		self._test_log_dir = config.sess_dirs.test_dir
+		self._test_dir = config.sess_dirs.test_dir
 		self._batch_size = config.batch_size
 
 		self._start()
@@ -20,7 +20,7 @@ class Session(object):
 	def _start(self):
 		self._ph_x = self._model.ph_x
 		self._ph_y = self._model.ph_y
-		self._prob = self._model._prob
+		self._prob = self._model.prob
 		self._train_step = self._model.train_step
 		self._summary_op = self._model.summary_op
 		self._update_ops = self._model.update_ops
@@ -30,7 +30,7 @@ class Session(object):
 		self._local_initializer = self._model.local_initializer
 
 		self._saver = self._model.saver
-		self._sess = tfutils.create_session(graph=self._model.graph)
+		self._sess = tfutils.create_session()
 		self._train_sum_writer = tf.summary.FileWriter(self._train_log_dir, self._sess.graph, flush_secs=2)
 		self._val_sum_writer = tf.summary.FileWriter(self._val_log_dir, flush_secs=2)
 

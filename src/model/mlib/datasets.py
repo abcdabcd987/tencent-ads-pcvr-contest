@@ -5,16 +5,16 @@ class TestIterator:
 	def __init__(self, iterator):
 		self.iterator = iterator
 
-	def __next__(self):
-		for xs, ids in iterator:
+	def __iter__(self):
+		for xs, ids in self.iterator:
 			yield ids, xs, None
 
 class NormalIterator:
 	def __init__(self, iterator):
 		self.iterator = iterator
 
-	def __next__(self):
-		for xs, ys in iterator:
+	def __iter__(self):
+		for xs, ys in self.iterator:
 			yield None, xs, ys
 
 class Datasets:
@@ -29,8 +29,8 @@ class Datasets:
 		config.max_length = self._rep.max_length
 		config.datasets = self
 
-	def get_dataset(self, dataset):
+	def get_dataset(self, dataset, batch_size):
 		if dataset == 'test':
-			return TestIterator(self._rep.get_dataset(dataset))
+			return TestIterator(self._rep.get_dataset(dataset, batch_size))
 		else:
-			return NormalIterator(self._rep.get_dataset(dataset))
+			return NormalIterator(self._rep.get_dataset(dataset, batch_size))

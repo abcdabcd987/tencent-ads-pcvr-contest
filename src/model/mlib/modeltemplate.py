@@ -13,7 +13,7 @@ class KeyMap:
 
 class Optimizers(KeyMap):
 	NAME = "Optimizer"
-	DEFAULT = "adam"
+	DEFAULT = tf.train.AdamOptimizer
 	MAP = {
 		"adam": tf.train.AdamOptimizer
 	}
@@ -35,7 +35,7 @@ class ModelTemplate(object):
 							initializer=tf.random_uniform_initializer(-0.05, 0.05))
 		b = tf.get_variable('bias', [1], dtype=tf.float32,
 							initializer=tf.zeros_initializer())
-		wx = tf.reduce_sum(tf.gather(w, self._ph_x), axis=1)
+		wx = tf.reduce_sum(tf.gather(w, self.ph_x), axis=1)
 		return wx + b
 
 	def _build(self):
@@ -43,10 +43,10 @@ class ModelTemplate(object):
 		self.ph_y = tf.placeholder(tf.float32, [None])
 		logits = self._body()
 		self.prob = tf.sigmoid(logits)
-		loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=self._ph_y, logits=logits))
+		loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=self.ph_y, logits=logits))
 		self.train_step = Optimizers.get(self._optimizer)(self._learning_rate).minimize(loss)
 		avgloss, _ = tf.metrics.mean(loss, updates_collections=tf.GraphKeys.UPDATE_OPS)
-		auc, _ = tf.metrics.auc(self._ph_y, self._prob, updates_collections=tf.GraphKeys.UPDATE_OPS)
+		auc, _ = tf.metrics.auc(self.ph_y, self.prob, updates_collections=tf.GraphKeys.UPDATE_OPS)
 		tf.summary.scalar("avg_loss", avgloss)
 		tf.summary.scalar("auc", auc)
 		self.summary_op = tf.summary.merge_all()

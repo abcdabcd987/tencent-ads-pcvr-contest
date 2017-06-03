@@ -16,14 +16,13 @@ class SessionConfig:
 		self.sess_dirs = exp_directories.session(str(sessid))
 
 		if isinstance(sessid, int):
-			self.train = 'smalltrain{}'.format(i)
-			self.val = 'val{}'.format(i)
+			self.train = 'smalltrain{}'.format(sessid)
+			self.val = 'val{}'.format(sessid)
 			self.test = None
 		else:
 			self.train = 'train'
 			self.val = None
 			self.test = 'test'
 
-	@property
 	def __getattr__(self, key):
-		return self._config.__getattribute__(key)
+		return eval("self._config.{}".format(key))

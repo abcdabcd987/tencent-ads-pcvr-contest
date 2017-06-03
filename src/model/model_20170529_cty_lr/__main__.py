@@ -17,7 +17,7 @@ def run_session(args, config):
 		sess.load(args.model)
 	print("training...")
 	for _ in range(config.epoch):
-		sess.train(args.train)
+		sess.train(config.train)
 		if config.val is not None:
 			sess.validate(config.val)
 	if config.test is not None:
@@ -32,7 +32,7 @@ def main():
 	LinearRegressionCTR(config.model_config)
 
 	for i in [1, 2, 3, 4]:
-		run_session(args, config.session_config(sessid))
-	run_session(args, config.session_config(sessid))
+		run_session(args, config.session_config(i))
+	run_session(args, config.session_config('final'))
 
 main()

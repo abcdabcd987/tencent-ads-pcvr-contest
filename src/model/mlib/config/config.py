@@ -4,8 +4,8 @@ from .model_config import ModelConfig
 from .session_config import ExpConfig
 
 class Config:
-	def __init__(self):
-		self.__internal__ = {}
+	def __init__(self, config):
+		self.__internal__ = {k: v for k, v in config.items()}
 		self.data_config = DataConfig(self)
 		self.model_config = ModelConfig(self)
 		self.exp_config = ExpConfig(self)
@@ -13,8 +13,7 @@ class Config:
 	@classmethod
 	def from_json(cls, script_file, config_name):
 		config = utils.read_module_config(script_file, config_name)
-		instance = cls()
-		instance.__internal__.update(config)
+		return cls(config)
 
 	@property
 	def dense_shape(self):

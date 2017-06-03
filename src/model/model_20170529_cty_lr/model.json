@@ -20,7 +20,7 @@
         "basic/haveBaby",
         "basic/hometown",
         "basic/residence",
-        "basic/installedApps",
+        //"basic/installedApps",
 
         // context
         "basic/positionID",
