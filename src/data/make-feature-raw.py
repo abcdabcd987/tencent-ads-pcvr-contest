@@ -9,7 +9,7 @@ from array import array
 from collections import namedtuple, defaultdict
 from tqdm import tqdm
 
-from .utils import *
+from utils import *
 
 
 FeatureItem = namedtuple('FeatureItem', ['name', 'value'])
