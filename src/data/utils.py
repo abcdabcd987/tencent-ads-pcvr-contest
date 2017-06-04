@@ -22,7 +22,7 @@ def dump_meta(filename, meta):
     dirname = os.path.dirname(filename)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
-    with open(filename, 'wb') as f:
+    with open(filename, 'w') as f:
         json.dump(meta, f, sort_keys=True, indent=2)
 
 
